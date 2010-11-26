@@ -7,6 +7,7 @@ package org.ads.solr;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Random;
 import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.handler.component.ResponseBuilder;
 import org.apache.solr.handler.component.QueryComponent;
@@ -17,6 +18,7 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.FieldCache;
 import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.response.SolrQueryResponse;
+import org.apache.solr.search.BitDocSet;
 import org.apache.solr.search.DocList;
 import org.apache.solr.search.DocSlice;
 import org.apache.solr.search.SolrIndexSearcher;
@@ -31,6 +33,7 @@ public class InvenioFacetComponent extends QueryComponent {
 
     private HashMap<String, Integer> idMap;
 
+    @Override
     public void prepare(ResponseBuilder rb) throws IOException {
 
         Logger log = LoggerFactory.getLogger(QueryComponent.class);
@@ -52,6 +55,7 @@ public class InvenioFacetComponent extends QueryComponent {
         super.prepare(rb);
     }
 
+    @Override
     public void process(ResponseBuilder rb) throws IOException {
 
         Logger log = LoggerFactory.getLogger(QueryComponent.class);
@@ -63,17 +67,20 @@ public class InvenioFacetComponent extends QueryComponent {
 
         // assume we've been passed in some kind of invenio intbitset and
         // parsed it into a set of doc ids use a canned integer list
-        String[] docIds = new String[] {"16939", "16025", "16021", "15964", "14850", "14763", "14762", "14482", "14481", "14452", "13841", "13838"};
-        log.info("string id list: " + docIds);
+        //String[] docIds = new String[] {"16939", "16025", "16021", "15964", "14850", "14763", "14762", "14482", "14481", "14452", "13841", "13838"};
+        //log.info("string id list: " + docIds);
 
-//        use a randomly generated list of doc ids
-//        this.docIds = new String[6000000];
-//        Random rgen = new Random();
-//        for (int i = 0; i < 6000000; i++) {
-//            this.docIds[i] = Integer.toString(rgen.nextInt(8900000));
-//        }
+        // use a randomly generated list of doc ids
+        Random rgen = new Random();
+        BitDocSet docSetFilter = new BitDocSet();
+        for (int i = 0; i < 100; i++) {
+            int rint = rgen.nextInt(8900000);
+            log.info("rint: " + rint);
+            docSetFilter.addUnique(rint);
+        }
 
         // translate our doc ids into lucene ids
+        /*
         int[] luceneIds = new int[docIds.length];
         for (int i = 0; i < docIds.length; i++) {
             log.info("i: " + i);
@@ -81,14 +88,14 @@ public class InvenioFacetComponent extends QueryComponent {
             luceneIds[i] = this.idMap.get(docIds[i]);
             log.info("luceneIds[i]: " + luceneIds[i]);
         }
+         */
 
         long timeAllowed = (long)params.getInt( CommonParams.TIME_ALLOWED, -1 );
         SolrIndexSearcher.QueryCommand cmd = rb.getQueryCommand();
-        DocList docSetFilter = new DocSlice(0, luceneIds.length, luceneIds, null, luceneIds.length, 0);
+        //DocList docSetFilter = new DocSlice(0, luceneIds.length, luceneIds, null, luceneIds.length, 0);
 
         // use our set of doc ids as a filter
         cmd.setFilter(docSetFilter);
-        log.info(docSetFilter.toString());
         cmd.setTimeAllowed(timeAllowed);
 
         SolrIndexSearcher searcher = req.getSearcher();
