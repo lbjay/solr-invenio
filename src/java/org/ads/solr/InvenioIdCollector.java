@@ -73,5 +73,4 @@ public class InvenioIdCollector extends Collector {
     public BitSet getBitSet() {
 	    return this.bs;
     }
-
 }
