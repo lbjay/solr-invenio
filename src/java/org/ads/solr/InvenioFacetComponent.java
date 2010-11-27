@@ -15,12 +15,11 @@ import org.apache.solr.request.SolrQueryRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.search.FieldCache;
+import org.apache.lucene.search.*;
 import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.response.SolrQueryResponse;
 import org.apache.solr.search.BitDocSet;
-import org.apache.solr.search.DocList;
-import org.apache.solr.search.DocSlice;
+import org.apache.solr.search.SolrCache;
 import org.apache.solr.search.SolrIndexSearcher;
 
 /**
@@ -45,7 +44,10 @@ public class InvenioFacetComponent extends QueryComponent {
         log.info("building idMap");
         this.idMap = new HashMap<String, Integer>();
 
-        IndexReader reader = req.getSearcher().getReader();
+        SolrIndexSearcher searcher = req.getSearcher();
+        IndexReader reader = searcher.getIndexReader();
+        SolrCache<String, Object> docIdMapCache = searcher.getCache("InvenioDocIdMapCache");
+
         String[] ids = FieldCache.DEFAULT.getStrings(reader, "id");
         for (int i = 0; i < ids.length; i++) {
             this.idMap.put(ids[i], i);
