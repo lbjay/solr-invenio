@@ -30,7 +30,6 @@ public class InvenioFacetComponent extends QueryComponent {
 
     public static final String COMPONENT_NAME = "invenio_facets";
 
-    private HashMap<String, Integer> idMap;
 
     @Override
     public void prepare(ResponseBuilder rb) throws IOException {
@@ -42,19 +41,51 @@ public class InvenioFacetComponent extends QueryComponent {
         SolrParams params = req.getParams();
 
         log.info("building idMap");
-        this.idMap = new HashMap<String, Integer>();
 
         SolrIndexSearcher searcher = req.getSearcher();
         IndexReader reader = searcher.getIndexReader();
         SolrCache<String, Object> docIdMapCache = searcher.getCache("InvenioDocIdMapCache");
 
-        String[] ids = FieldCache.DEFAULT.getStrings(reader, "id");
-        for (int i = 0; i < ids.length; i++) {
-            this.idMap.put(ids[i], i);
+        String cacheKey = reader.hashCode();
+        log.info("Using cacheKey: " + cacheKey);
+
+        HashMap<String, Integer> idMap = docIdMapCache.get(cacheKey);
+
+        if (idMap == null) {
+            log.info("idMap not found in cache; generating");
+            String[] ids = FieldCache.DEFAULT.getStrings(reader, "id");
+            idMap = new HashMap<String, Integer>();
+            for (int i = 0; i < ids.length; i++) {
+                idMap.put(ids[i], i);
+            }
+            docIdMapCache.put(cacheKey, idMap);
+        } else {
+            log.info("idMap retrieved from cache");
         }
 
         // let the main class do it's thing to set up the basic query
         super.prepare(rb);
+    }
+
+    private HashMap<String, Integer> getIdMap(IndexReader reader) {
+        String cacheKey = reader.hashCode();
+        log.info("Using cacheKey: " + cacheKey);
+
+        HashMap<String, Integer> idMap = docIdMapCache.get(cacheKey);
+
+        if (idMap == null) {
+            log.info("idMap not found in cache; generating");
+            String[] ids = FieldCache.DEFAULT.getStrings(reader, "id");
+            idMap = new HashMap<String, Integer>();
+            for (int i = 0; i < ids.length; i++) {
+                idMap.put(ids[i], i);
+            }
+            docIdMapCache.put(cacheKey, idMap);
+        } else {
+            log.info("idMap retrieved from cache");
+        }
+        log.info("idMap done");
+        return idMap;
     }
 
     @Override
@@ -67,6 +98,9 @@ public class InvenioFacetComponent extends QueryComponent {
         SolrQueryResponse rsp = rb.rsp;
         SolrParams params = req.getParams();
 
+        IndexReader reader = req.getSearcher().getIndexReader();
+        HashMap<String, Integer> idMap = this.getIdMap(reader);
+
         // assume we've been passed in some kind of invenio intbitset and
         // parsed it into a set of doc ids use a canned integer list
         //String[] docIds = new String[] {"16939", "16025", "16021", "15964", "14850", "14763", "14762", "14482", "14481", "14452", "13841", "13838"};
@@ -78,7 +112,9 @@ public class InvenioFacetComponent extends QueryComponent {
         for (int i = 0; i < 100; i++) {
             int rint = rgen.nextInt(8900000);
             log.info("rint: " + rint);
-            docSetFilter.addUnique(rint);
+            int lucene_id = idMap.get(Integer.parseString(rint));
+            log.info("lucene_id: " + lucene_id);
+            docSetFilter.addUnique(lucene_id);
         }
 
         // translate our doc ids into lucene ids
