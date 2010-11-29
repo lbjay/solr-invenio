@@ -113,40 +113,25 @@ public class InvenioFacetComponent extends QueryComponent {
 
         HashMap<String, Integer> idMap = getIdMap(req.getSearcher());
 
-        // assume we've been passed in some kind of invenio intbitset and
-        // parsed it into a set of doc ids use a canned integer list
-        //String[] docIds = new String[] {"16939", "16025", "16021", "15964", "14850", "14763", "14762", "14482", "14481", "14452", "13841", "13838"};
-        //log.info("string id list: " + docIds);
-
         // use a randomly generated list of doc ids
         Random rgen = new Random();
         BitDocSet docSetFilter = new BitDocSet();
-        for (int i = 0; i < 100; i++) {
+        log.info("generating random docset filter");
+        for (int i = 0; i < 6000000; i++) {
             int rint = rgen.nextInt(idMap.size());
-            log.info("rint: " + rint);
+//            log.info("rint: " + rint);
             if (idMap.containsKey(Integer.toString(rint))) {
                 int lucene_id = idMap.get(Integer.toString(rint));
-                log.info("lucene_id: " + lucene_id);
+//                log.info("lucene_id: " + lucene_id);
                 docSetFilter.addUnique(lucene_id);
             }
         }
+        log.info("done");
 
         log.info("docSetFilter size: " + docSetFilter.size());
 
-        // translate our doc ids into lucene ids
-        /*
-        int[] luceneIds = new int[docIds.length];
-        for (int i = 0; i < docIds.length; i++) {
-            log.info("i: " + i);
-            log.info("docIds[i]: " + docIds[i]);
-            luceneIds[i] = this.idMap.get(docIds[i]);
-            log.info("luceneIds[i]: " + luceneIds[i]);
-        }
-         */
-
         long timeAllowed = (long)params.getInt( CommonParams.TIME_ALLOWED, -1 );
         SolrIndexSearcher.QueryCommand cmd = rb.getQueryCommand();
-        //DocList docSetFilter = new DocSlice(0, luceneIds.length, luceneIds, null, luceneIds.length, 0);
 
         // use our set of doc ids as a filter
         cmd.setFilter(docSetFilter);
