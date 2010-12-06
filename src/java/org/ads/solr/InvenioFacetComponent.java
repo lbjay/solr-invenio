@@ -30,47 +30,6 @@ import org.apache.solr.search.SolrIndexSearcher;
  */
 public class InvenioFacetComponent extends QueryComponent {
 
-    public static final String COMPONENT_NAME = "invenio_facets";
-
-    /*
-    @Override
-    public void prepare(ResponseBuilder rb) throws IOException {
-
-        Logger log = LoggerFactory.getLogger(QueryComponent.class);
-        log.info(COMPONENT_NAME);
-
-        SolrQueryRequest req = rb.req;
-        SolrParams params = req.getParams();
-
-        log.info("building idMap");
-
-        SolrIndexSearcher searcher = req.getSearcher();
-        IndexReader reader = searcher.getIndexReader();
-        SolrCache<Integer, Object> docIdMapCache = searcher.getCache("InvenioDocIdMapCache");
-
-        int cacheKey = reader.hashCode();
-        log.info("Using cacheKey: " + cacheKey);
-
-        HashMap<String, Integer> idMap = (HashMap<String, Integer>)docIdMapCache.get(cacheKey);
-
-        if (idMap == null) {
-            log.info("idMap not found in cache; generating");
-            String[] ids = FieldCache.DEFAULT.getStrings(reader, "id");
-            idMap = new HashMap<String, Integer>();
-            for (int i = 0; i < ids.length; i++) {
-                idMap.put(ids[i], i);
-            }
-            docIdMapCache.put(cacheKey, idMap);
-        } else {
-            log.info("idMap retrieved from cache");
-        }
-
-        // let the main class do it's thing to set up the basic query
-        super.prepare(rb);
-    }
-     *
-     */
-
     private HashMap<String, Integer> getIdMap(SolrIndexSearcher searcher) {
 
         Logger log = LoggerFactory.getLogger(QueryComponent.class);
