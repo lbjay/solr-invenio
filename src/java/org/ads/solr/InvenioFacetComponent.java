@@ -23,6 +23,7 @@ import org.apache.solr.response.SolrQueryResponse;
 import org.apache.solr.search.BitDocSet;
 import org.apache.solr.search.SolrCache;
 import org.apache.solr.search.SolrIndexSearcher;
+import com.jcraft.jzlib.Deflate;
 
 /**
  *
@@ -30,7 +31,7 @@ import org.apache.solr.search.SolrIndexSearcher;
  */
 public class InvenioFacetComponent extends QueryComponent {
 
-    private HashMap<String, Integer> getIdMap(SolrIndexSearcher searcher) {
+    private HashMap<Integer, Integer> getIdMap(SolrIndexSearcher searcher) {
 
         Logger log = LoggerFactory.getLogger(QueryComponent.class);
         IndexReader reader = searcher.getReader();
@@ -39,13 +40,15 @@ public class InvenioFacetComponent extends QueryComponent {
         log.info("Using cacheKey: " + cacheKey);
 
         SolrCache<Integer, Object> docIdMapCache = searcher.getCache("InvenioDocIdMapCache");
-        HashMap<String, Integer> idMap = (HashMap<String, Integer>)docIdMapCache.get(cacheKey);
+        HashMap<Integer, Integer> idMap = (HashMap<Integer, Integer>)docIdMapCache.get(cacheKey);
 
         if (idMap == null) {
             log.info("idMap not found in cache; generating");
-            idMap = new HashMap<String, Integer>();
+            idMap = new HashMap<Integer, Integer>();
             try {
-                String[] ids = FieldCache.DEFAULT.getStrings(reader, "id");
+                int[] ids = FieldCache.DEFAULT.getInts(reader, "id");
+                log.info("ids length: " + ids.length);
+                log.info("ids[3455]: " + ids[3455]);
                 for (int i = 0; i < ids.length; i++) {
                     idMap.put(ids[i], i);
                 }
@@ -71,20 +74,30 @@ public class InvenioFacetComponent extends QueryComponent {
         SolrParams params = req.getParams();
 
         SolrIndexSearcher searcher = req.getSearcher();
-        HashMap<String, Integer> idMap = getIdMap(searcher);
+        HashMap<Integer, Integer> idMap = getIdMap(searcher);
 
         // use a randomly generated list of doc ids
         Random rgen = new Random();
         BitDocSet docSetFilter = new BitDocSet();
-        log.info("generating random docset filter");
-        for (int i = 0; i < 6000000; i++) {
-            int rint = rgen.nextInt(idMap.size());
-//            log.info("rint: " + rint);
-            if (idMap.containsKey(Integer.toString(rint))) {
-                int lucene_id = idMap.get(Integer.toString(rint));
+//        log.info("generating random docset filter");
+//        for (int i = 0; i < 6000000; i++) {
+//            int rint = rgen.nextInt(idMap.size());
+//            if (i % 100000 == 0) {
+//                log.info("rint: " + rint);
+//            }
+//            if (idMap.containsKey(rint)) {
+//                int lucene_id = idMap.get(rint);
 //                log.info("lucene_id: " + lucene_id);
-                docSetFilter.addUnique(lucene_id);
+//                docSetFilter.addUnique(lucene_id);
+//            }
+//        }
+        for (int k : idMap.keySet()) {
+            int lucene_id = idMap.get(k);
+            if (lucene_id % 100 == 0) {
+                log.info("solr id: " + k);
+                log.info("lucene id: " + lucene_id);
             }
+            docSetFilter.addUnique(lucene_id);
         }
         log.info("done");
 

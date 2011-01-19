@@ -19,11 +19,11 @@ public class InvenioIdCollector extends Collector {
 	public static final Logger log = LoggerFactory.getLogger(SolrResourceLoader.class);
 
 //    private Map<String, Float> docs = new HashMap<String, Float>();
-    private InvenioBitSet ibs = new InvenioBitSet();
+    private InvenioBitSet bitset = new InvenioBitSet(1000);
     private Scorer scorer;
     private IndexReader reader;
     private int docBase;
-    private String[] idMap;
+    private int[] idMap;
 
 	@Override
 	public boolean acceptsDocsOutOfOrder() {
@@ -32,7 +32,10 @@ public class InvenioIdCollector extends Collector {
 
 	@Override
 	public void collect(int relativeId) throws IOException {
-    	this.ibs.set(Integer.parseInt(this.idMap[relativeId + this.docBase]));
+        log.info("relativeId: " + relativeId);
+        log.info("this.docBase: " + this.docBase);
+        log.info("idMap length: " + this.idMap.length);
+    	this.bitset.set(this.idMap[relativeId]); // + this.docBase]);
 	}
 
 	@Override
@@ -42,7 +45,8 @@ public class InvenioIdCollector extends Collector {
 
 		log.info("initializing idMap");
 		try {
-			this.idMap = FieldCache.DEFAULT.getStrings(this.reader, "id");
+            this.idMap = FieldCache.DEFAULT.getInts(this.reader, "id");
+            log.info("idMap length: " + this.idMap.length);
 		}
 		catch (IOException e) {
 			SolrException.logOnce(SolrCore.log, "Exception during idMap init", e);
@@ -54,7 +58,7 @@ public class InvenioIdCollector extends Collector {
 		this.scorer = scorer;
 	}
 
-    public BitSet getBitSet() {
-	    return this.ibs;
+    public InvenioBitSet getBitSet() {
+	    return this.bitset;
     }
 }
