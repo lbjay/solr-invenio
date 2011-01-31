@@ -32,9 +32,9 @@ public class InvenioIdCollector extends Collector {
 
 	@Override
 	public void collect(int relativeId) throws IOException {
-        log.info("relativeId: " + relativeId);
-        log.info("this.docBase: " + this.docBase);
-        log.info("idMap length: " + this.idMap.length);
+//        log.info("relativeId: " + relativeId);
+//        log.info("this.docBase: " + this.docBase);
+//        log.info("idMap length: " + this.idMap.length);
     	this.bitset.set(this.idMap[relativeId]); // + this.docBase]);
 	}
 

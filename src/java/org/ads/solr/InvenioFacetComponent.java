@@ -6,6 +6,7 @@
 package org.ads.solr;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Random;
 import org.apache.solr.common.params.SolrParams;
@@ -23,7 +24,11 @@ import org.apache.solr.response.SolrQueryResponse;
 import org.apache.solr.search.BitDocSet;
 import org.apache.solr.search.SolrCache;
 import org.apache.solr.search.SolrIndexSearcher;
-import com.jcraft.jzlib.Deflate;
+import org.apache.solr.common.util.ContentStream;
+import com.jcraft.jzlib.*;
+import java.io.ByteArrayOutputStream;
+import org.apache.commons.io.IOUtils;
+import org.apache.lucene.util.OpenBitSet;
 
 /**
  *
@@ -72,36 +77,47 @@ public class InvenioFacetComponent extends QueryComponent {
         SolrQueryRequest req = rb.req;
         SolrQueryResponse rsp = rb.rsp;
         SolrParams params = req.getParams();
+        Iterable<ContentStream> streams = req.getContentStreams();
+
+        if (streams == null) {
+//          TODO: throw IOException("No streams found! Where's my bitset?");
+            log.error("No streams found!");
+        }
+
 
         SolrIndexSearcher searcher = req.getSearcher();
         HashMap<Integer, Integer> idMap = getIdMap(searcher);
-
-        // use a randomly generated list of doc ids
-        Random rgen = new Random();
+        InvenioBitSet bitset = null;
         BitDocSet docSetFilter = new BitDocSet();
-//        log.info("generating random docset filter");
-//        for (int i = 0; i < 6000000; i++) {
-//            int rint = rgen.nextInt(idMap.size());
-//            if (i % 100000 == 0) {
-//                log.info("rint: " + rint);
-//            }
-//            if (idMap.containsKey(rint)) {
-//                int lucene_id = idMap.get(rint);
-//                log.info("lucene_id: " + lucene_id);
-//                docSetFilter.addUnique(lucene_id);
-//            }
-//        }
-        for (int k : idMap.keySet()) {
-            int lucene_id = idMap.get(k);
-            if (lucene_id % 100 == 0) {
-                log.info("solr id: " + k);
-                log.info("lucene id: " + lucene_id);
-            }
-            docSetFilter.addUnique(lucene_id);
-        }
-        log.info("done");
 
-        log.info("docSetFilter size: " + docSetFilter.size());
+        for (ContentStream stream : streams) {
+            log.info("Got stream: " + stream.getName() +
+                ", Content type: " + stream.getContentType() +
+                ", stream info: " + stream.getSourceInfo());
+
+            if (stream.getName().equals("bitset")) {
+                InputStream is = stream.getStream();
+                // use zlib to read in the data
+                ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+                ZInputStream zIn = new ZInputStream(is);
+                byte[] buf = new byte[1024];
+                while ((zIn.read(buf, 0, 1024)) != -1) {
+                    bOut.write(buf);
+                }
+
+                bitset = new InvenioBitSet(bOut.toByteArray());
+                log.info("bitset query: " + bitset.toString());
+
+                int i = 0;
+                while (bitset.nextSetBit(i) != -1) {
+                    int nextBit = bitset.nextSetBit(i);
+                    int lucene_id = idMap.get(nextBit);
+                    docSetFilter.add(lucene_id);
+                    i = nextBit + 1;
+                }
+                log.info("docSetFilter size: " + docSetFilter.size());
+            }
+        }
 
         long timeAllowed = (long)params.getInt( CommonParams.TIME_ALLOWED, -1 );
         SolrIndexSearcher.QueryCommand cmd = rb.getQueryCommand();

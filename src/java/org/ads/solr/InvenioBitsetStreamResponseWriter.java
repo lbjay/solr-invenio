@@ -9,13 +9,10 @@ import java.io.*;
 import org.apache.solr.request.SolrQueryRequest;
 import org.apache.solr.response.BinaryResponseWriter;
 import org.apache.solr.response.SolrQueryResponse;
-import org.apache.commons.io.IOUtils;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.core.SolrCore;
 
 import com.jcraft.jzlib.*;
-import java.util.zip.DeflaterInputStream;
-import java.util.zip.DeflaterOutputStream;
 import org.apache.solr.common.util.NamedList;
 import org.apache.solr.core.SolrResourceLoader;
 import org.slf4j.Logger;
