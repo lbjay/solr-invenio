@@ -88,6 +88,7 @@ public class InvenioFacetComponent extends QueryComponent {
         SolrIndexSearcher searcher = req.getSearcher();
         HashMap<Integer, Integer> idMap = getIdMap(searcher);
         InvenioBitSet bitset = null;
+        OpenBitSet obitset = null;
         BitDocSet docSetFilter = new BitDocSet();
 
         for (ContentStream stream : streams) {
@@ -105,7 +106,8 @@ public class InvenioFacetComponent extends QueryComponent {
                     bOut.write(buf);
                 }
 
-                bitset = new InvenioBitSet(bOut.toByteArray());
+                byte[] bitset_bytes = bOut.toByteArray();
+                bitset = new InvenioBitSet(bitset_bytes);
                 log.info("bitset query: " + bitset.toString());
 
                 ArrayList<Integer> badIds = new ArrayList<Integer>();

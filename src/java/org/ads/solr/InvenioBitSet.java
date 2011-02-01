@@ -3,6 +3,7 @@ package org.ads.solr;
 import java.io.*;
 import java.util.BitSet;
 import java.util.Arrays;
+import org.apache.commons.lang.ArrayUtils;
 
 public class InvenioBitSet extends BitSet {
 
@@ -18,7 +19,8 @@ public class InvenioBitSet extends BitSet {
 
     // TODO: remove the trailing 8 bytes (added by intbitset format) and test
     public InvenioBitSet(byte[] bytes) {
-        this(bytes == null? 0 : bytes.length * 8);
+        this(bytes == null? 0 : (bytes.length * 8) - 8);
+        bytes = ArrayUtils.subarray(bytes, 0, bytes.length - 8);
         for (int i = 0; i < size(); i++) {
             if (isBitOn(i, bytes))
                 set(i);
