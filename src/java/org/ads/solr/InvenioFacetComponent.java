@@ -102,9 +102,11 @@ public class InvenioFacetComponent extends QueryComponent {
                 ByteArrayOutputStream bOut = new ByteArrayOutputStream();
                 ZInputStream zIn = new ZInputStream(is);
                 byte[] buf = new byte[1024];
-                while ((zIn.read(buf, 0, 1024)) != -1) {
-                    bOut.write(buf);
-                }
+//                while ((zIn.read(buf, 0, 1024)) != -1) {
+//                    bOut.write(buf);
+//                }
+                int bytesCopied = IOUtils.copy(zIn, bOut);
+                log.info("bytes copied: " + bytesCopied);
 
                 byte[] bitset_bytes = bOut.toByteArray();
                 bitset = new InvenioBitSet(bitset_bytes);
