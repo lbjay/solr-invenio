@@ -109,6 +109,8 @@ public class InvenioFacetComponent extends QueryComponent {
                 log.info("bitset query: " + bitset.toString());
 
                 ArrayList<Integer> badIds = new ArrayList<Integer>();
+                ArrayList<Integer> goodIds = new ArrayList<Integer>();
+                ArrayList<Integer> luceneIds = new ArrayList<Integer>();
                 int i = 0;
                 while (bitset.nextSetBit(i) != -1) {
                     int nextBit = bitset.nextSetBit(i);
@@ -116,6 +118,8 @@ public class InvenioFacetComponent extends QueryComponent {
                         int lucene_id = idMap.get(nextBit);
                         log.info("got lucene id: " + lucene_id);
                         docSetFilter.add(lucene_id);
+                        luceneIds.add(lucene_id);
+                        goodIds.add(nextBit);
                     } catch (NullPointerException e) {
                         badIds.add(nextBit);
                     }
@@ -123,6 +127,8 @@ public class InvenioFacetComponent extends QueryComponent {
                 }
                 log.info("badIds size: " + badIds.size());
                 log.info("badIds: " + badIds.toString());
+                log.info("goodIds: " + goodIds.toString());
+                log.info("luceneIds: " + luceneIds.toString());
                 log.info("docSetFilter size: " + docSetFilter.size());
             }
         }
