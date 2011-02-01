@@ -54,7 +54,6 @@ public class InvenioFacetComponent extends QueryComponent {
             try {
                 int[] ids = FieldCache.DEFAULT.getInts(reader, "id");
                 log.info("ids length: " + ids.length);
-                log.info("ids[3455]: " + ids[3455]);
                 for (int i = 0; i < ids.length; i++) {
                     idMap.put(ids[i], i);
                 }
@@ -110,7 +109,6 @@ public class InvenioFacetComponent extends QueryComponent {
 
                 byte[] bitset_bytes = bOut.toByteArray();
                 bitset = new InvenioBitSet(bitset_bytes);
-                log.info("bitset query: " + bitset.toString());
 
                 ArrayList<Integer> badIds = new ArrayList<Integer>();
                 ArrayList<Integer> goodIds = new ArrayList<Integer>();
@@ -120,7 +118,6 @@ public class InvenioFacetComponent extends QueryComponent {
                     int nextBit = bitset.nextSetBit(i);
                     try {
                         int lucene_id = idMap.get(nextBit);
-                        log.info("got lucene id: " + lucene_id);
                         docSetFilter.add(lucene_id);
                         luceneIds.add(lucene_id);
                         goodIds.add(nextBit);
@@ -130,9 +127,8 @@ public class InvenioFacetComponent extends QueryComponent {
                     i = nextBit + 1;
                 }
                 log.info("badIds size: " + badIds.size());
-                log.info("badIds: " + badIds.toString());
-                log.info("goodIds: " + goodIds.toString());
-                log.info("luceneIds: " + luceneIds.toString());
+                log.info("goodIds size: " + goodIds.size());
+                log.info("luceneIds size: " + luceneIds.size());
                 log.info("docSetFilter size: " + docSetFilter.size());
             }
         }
