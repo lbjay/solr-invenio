@@ -84,7 +84,6 @@ public class InvenioFacetComponent extends QueryComponent {
             log.error("No streams found!");
         }
 
-
         SolrIndexSearcher searcher = req.getSearcher();
         HashMap<Integer, Integer> idMap = getIdMap(searcher);
         InvenioBitSet bitset = null;
@@ -111,8 +110,14 @@ public class InvenioFacetComponent extends QueryComponent {
                 int i = 0;
                 while (bitset.nextSetBit(i) != -1) {
                     int nextBit = bitset.nextSetBit(i);
-                    int lucene_id = idMap.get(nextBit);
-                    docSetFilter.add(lucene_id);
+                    try {
+                        int lucene_id = idMap.get(nextBit);
+                        log.info("got lucene id: " + lucene_id);
+                        docSetFilter.add(lucene_id);
+                    } catch (NullPointerException e) {
+                        log.error("idMap size: " + idMap.size());
+                        log.error("nextBit: " + nextBit);
+                    }
                     i = nextBit + 1;
                 }
                 log.info("docSetFilter size: " + docSetFilter.size());
