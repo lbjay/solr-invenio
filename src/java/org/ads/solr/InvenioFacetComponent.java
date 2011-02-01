@@ -27,6 +27,7 @@ import org.apache.solr.search.SolrIndexSearcher;
 import org.apache.solr.common.util.ContentStream;
 import com.jcraft.jzlib.*;
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import org.apache.commons.io.IOUtils;
 import org.apache.lucene.util.OpenBitSet;
 
@@ -107,6 +108,7 @@ public class InvenioFacetComponent extends QueryComponent {
                 bitset = new InvenioBitSet(bOut.toByteArray());
                 log.info("bitset query: " + bitset.toString());
 
+                ArrayList<Integer> badIds = new ArrayList<Integer>();
                 int i = 0;
                 while (bitset.nextSetBit(i) != -1) {
                     int nextBit = bitset.nextSetBit(i);
@@ -115,11 +117,12 @@ public class InvenioFacetComponent extends QueryComponent {
                         log.info("got lucene id: " + lucene_id);
                         docSetFilter.add(lucene_id);
                     } catch (NullPointerException e) {
-                        log.error("idMap size: " + idMap.size());
-                        log.error("nextBit: " + nextBit);
+                        badIds.add(nextBit);
                     }
                     i = nextBit + 1;
                 }
+                log.info("badIds size: " + badIds.size());
+                log.info("badIds: " + badIds.toString());
                 log.info("docSetFilter size: " + docSetFilter.size());
             }
         }
