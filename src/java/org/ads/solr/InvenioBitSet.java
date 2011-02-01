@@ -18,7 +18,7 @@ public class InvenioBitSet extends BitSet {
 
     // TODO: remove the trailing 8 bytes (added by intbitset format) and test
     public InvenioBitSet(byte[] bytes) {
-        this(bytes == null? 0 : bytes.length * 7);
+        this(bytes == null? 0 : bytes.length * 8);
         for (int i = 0; i < size(); i++) {
             if (isBitOn(i, bytes))
                 set(i);
