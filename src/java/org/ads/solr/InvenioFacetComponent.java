@@ -80,14 +80,12 @@ public class InvenioFacetComponent extends QueryComponent {
         Iterable<ContentStream> streams = req.getContentStreams();
 
         if (streams == null) {
-//          TODO: throw IOException("No streams found! Where's my bitset?");
-            log.error("No streams found!");
+            throw new Exception("No streams found!");
         }
 
         SolrIndexSearcher searcher = req.getSearcher();
         HashMap<Integer, Integer> idMap = getIdMap(searcher);
         InvenioBitSet bitset = null;
-        OpenBitSet obitset = null;
         BitDocSet docSetFilter = new BitDocSet();
 
         for (ContentStream stream : streams) {
@@ -96,39 +94,25 @@ public class InvenioFacetComponent extends QueryComponent {
                 ", stream info: " + stream.getSourceInfo());
 
             if (stream.getName().equals("bitset")) {
-                InputStream is = stream.getStream();
+
                 // use zlib to read in the data
+                InputStream is = stream.getStream();
                 ByteArrayOutputStream bOut = new ByteArrayOutputStream();
                 ZInputStream zIn = new ZInputStream(is);
-                byte[] buf = new byte[1024];
-//                while ((zIn.read(buf, 0, 1024)) != -1) {
-//                    bOut.write(buf);
-//                }
+
                 int bytesCopied = IOUtils.copy(zIn, bOut);
                 log.info("bytes copied: " + bytesCopied);
 
                 byte[] bitset_bytes = bOut.toByteArray();
                 bitset = new InvenioBitSet(bitset_bytes);
 
-                ArrayList<Integer> badIds = new ArrayList<Integer>();
-                ArrayList<Integer> goodIds = new ArrayList<Integer>();
-                ArrayList<Integer> luceneIds = new ArrayList<Integer>();
                 int i = 0;
                 while (bitset.nextSetBit(i) != -1) {
                     int nextBit = bitset.nextSetBit(i);
-                    try {
-                        int lucene_id = idMap.get(nextBit);
-                        docSetFilter.add(lucene_id);
-                        luceneIds.add(lucene_id);
-                        goodIds.add(nextBit);
-                    } catch (NullPointerException e) {
-                        badIds.add(nextBit);
-                    }
+                    int lucene_id = idMap.get(nextBit);
+                    docSetFilter.add(lucene_id);
                     i = nextBit + 1;
                 }
-                log.info("badIds size: " + badIds.size());
-                log.info("goodIds size: " + goodIds.size());
-                log.info("luceneIds size: " + luceneIds.size());
                 log.info("docSetFilter size: " + docSetFilter.size());
             }
         }

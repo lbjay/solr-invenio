@@ -26,6 +26,8 @@ public class CustomSimilarityFactory extends SimilarityFactory {
     public void init(SolrParams params) {
         super.init(params);
         log.info("similarity factory params: " + this.params);
+        log.info("toNamedList: " + this.params.toNamedList());
+        log.info("toNamedList['body']: " + this.params.toNamedList().get("body"));
     }
 
     @Override
