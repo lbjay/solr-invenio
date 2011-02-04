@@ -63,9 +63,10 @@ public class InvenioQueryComponent extends QueryComponent {
     searcher.search(query, collector);
 
     log.info("Fetchting bitset from collector");
-    InvenioBitSet bitset = collector.getBitSet();
+//    InvenioBitSet bitset = collector.getBitSet();
 
-    rsp.add("bitset", bitset);
+//    rsp.add("bitset", bitset);
+    rsp.add("ids", collector.getIds());
     log.info("bitset stream added to response");
 
    }

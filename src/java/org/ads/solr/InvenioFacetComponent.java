@@ -80,7 +80,7 @@ public class InvenioFacetComponent extends QueryComponent {
         Iterable<ContentStream> streams = req.getContentStreams();
 
         if (streams == null) {
-            throw new Exception("No streams found!");
+            throw new IOException("No streams found!");
         }
 
         SolrIndexSearcher searcher = req.getSearcher();

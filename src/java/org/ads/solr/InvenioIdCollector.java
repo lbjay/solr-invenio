@@ -24,6 +24,7 @@ public class InvenioIdCollector extends Collector {
     private IndexReader reader;
     private int docBase;
     private int[] idMap;
+    private ArrayList<Integer> ids = new ArrayList<Integer>();
 
 	@Override
 	public boolean acceptsDocsOutOfOrder() {
@@ -35,7 +36,8 @@ public class InvenioIdCollector extends Collector {
 //        log.info("relativeId: " + relativeId);
 //        log.info("this.docBase: " + this.docBase);
 //        log.info("idMap length: " + this.idMap.length);
-    	this.bitset.set(this.idMap[relativeId]); // + this.docBase]);
+//    	this.bitset.set(this.idMap[relativeId]); // + this.docBase]);
+        this.ids.add(this.idMap[relativeId]);
 	}
 
 	@Override
@@ -60,5 +62,9 @@ public class InvenioIdCollector extends Collector {
 
     public InvenioBitSet getBitSet() {
 	    return this.bitset;
+    }
+
+    public ArrayList<Integer> getIds() {
+        return this.ids;
     }
 }
