@@ -26,6 +26,7 @@ import org.apache.solr.common.SolrException;
 import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.core.SolrCore;
 import org.apache.solr.core.SolrResourceLoader;
+import org.apache.solr.schema.IndexSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,19 +56,16 @@ public class InvenioQueryComponent extends QueryComponent {
 
     log.info("wt: " + req.getParams().get("wt"));
 
-    InvenioIdCollector collector = new InvenioIdCollector();
+    BitSetFieldCollector bsfc = new BitSetFieldCollector("id");
+    bsfc.setResponseFieldName("bitset");
+    FieldCollector fc = new FieldCollector(bsfc);
 
     SolrIndexSearcher.QueryCommand cmd = rb.getQueryCommand();
     Query query = cmd.getQuery();
 
-    searcher.search(query, collector);
+    searcher.search(query, fc);
 
-    log.info("Fetchting bitset from collector");
-//    InvenioBitSet bitset = collector.getBitSet();
-
-//    rsp.add("bitset", bitset);
-    rsp.add("ids", collector.getIds());
-    log.info("bitset stream added to response");
-
+    log.info("Adding bitset to response");
+    fc.addValuesToResponse(rsp);
    }
 }

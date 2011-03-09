@@ -26,18 +26,14 @@ public class InvenioBitsetStreamResponseWriter extends BinaryResponseWriter {
     public static final Logger log = LoggerFactory.getLogger(SolrResourceLoader.class);
 
     @Override
-    public void init(NamedList args) {
-        log.info("init method called!");
-    }
-    @Override
     public void write(OutputStream out, SolrQueryRequest req, SolrQueryResponse rsp) {
 
-        log.info("In the custom response writer");
+        log.info("In the streaming response writer");
 
         InvenioBitSet bitset = (InvenioBitSet) rsp.getValues().get("bitset");
-        ZOutputStream zOut = new ZOutputStream(out, JZlib.Z_BEST_SPEED);
-
         log.info("bitset size: " + bitset.size());
+
+        ZOutputStream zOut = new ZOutputStream(out, JZlib.Z_BEST_SPEED);
 
         try {
             zOut.write(bitset.toByteArray());
