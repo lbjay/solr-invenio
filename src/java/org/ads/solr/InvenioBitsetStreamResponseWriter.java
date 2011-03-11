@@ -7,14 +7,13 @@ package org.ads.solr;
 
 import java.io.*;
 import org.apache.solr.request.SolrQueryRequest;
-import org.apache.solr.response.BinaryResponseWriter;
-import org.apache.solr.response.SolrQueryResponse;
+import org.apache.solr.request.BinaryResponseWriter;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.core.SolrCore;
 
 import com.jcraft.jzlib.*;
-import org.apache.solr.common.util.NamedList;
 import org.apache.solr.core.SolrResourceLoader;
+import org.apache.solr.request.SolrQueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 /**

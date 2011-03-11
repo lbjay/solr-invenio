@@ -8,7 +8,6 @@ package org.ads.solr;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.Random;
 import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.handler.component.ResponseBuilder;
 import org.apache.solr.handler.component.QueryComponent;
@@ -20,16 +19,14 @@ import org.apache.lucene.search.*;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.core.SolrCore;
-import org.apache.solr.response.SolrQueryResponse;
 import org.apache.solr.search.BitDocSet;
 import org.apache.solr.search.SolrCache;
 import org.apache.solr.search.SolrIndexSearcher;
 import org.apache.solr.common.util.ContentStream;
 import com.jcraft.jzlib.*;
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
 import org.apache.commons.io.IOUtils;
-import org.apache.lucene.util.OpenBitSet;
+import org.apache.solr.request.SolrQueryResponse;
 
 /**
  *
@@ -45,7 +42,11 @@ public class InvenioFacetComponent extends QueryComponent {
         int cacheKey = reader.hashCode();
         log.info("Using cacheKey: " + cacheKey);
 
-        SolrCache<Integer, Object> docIdMapCache = searcher.getCache("InvenioDocIdMapCache");
+        SolrCache docIdMapCache = searcher.getCache("InvenioDocIdMapCache");
+        if (docIdMapCache == null) {
+            log.error("Can't access InvenioDocIdMapCache. Did you configure it?");
+        }
+
         HashMap<Integer, Integer> idMap = (HashMap<Integer, Integer>)docIdMapCache.get(cacheKey);
 
         if (idMap == null) {
@@ -131,7 +132,7 @@ public class InvenioFacetComponent extends QueryComponent {
         rsp.add("response",rb.getResults().docList);
         rsp.getToLog().add("hits", rb.getResults().docList.matches());
 
-        doFieldSortValues(rb, searcher);
-        doPrefetch(rb);
+//        doFieldSortValues(rb, searcher);
+//        doPrefetch(rb);
     }
 }

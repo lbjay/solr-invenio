@@ -5,7 +5,6 @@
 
 package org.ads.solr;
 
-import com.jcraft.jzlib.JZlib;
 import java.io.IOException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.Query;
@@ -13,20 +12,11 @@ import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.handler.component.QueryComponent;
 import org.apache.solr.handler.component.ResponseBuilder;
 import org.apache.solr.request.SolrQueryRequest;
-import org.apache.solr.response.SolrQueryResponse;
 import org.apache.solr.search.SolrIndexSearcher;
 
-import org.ads.solr.InvenioBitSet;
-import com.jcraft.jzlib.ZInputStream;
-import java.util.zip.DeflaterOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.util.zip.DeflaterInputStream;
-import org.apache.solr.common.SolrException;
 import org.apache.solr.common.params.SolrParams;
-import org.apache.solr.core.SolrCore;
 import org.apache.solr.core.SolrResourceLoader;
-import org.apache.solr.schema.IndexSchema;
+import org.apache.solr.request.SolrQueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -12,7 +12,7 @@ import org.apache.lucene.search.Scorer;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.core.SolrCore;
 import org.apache.solr.core.SolrResourceLoader;
-import org.apache.solr.response.SolrQueryResponse;
+import org.apache.solr.request.SolrQueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -31,7 +31,7 @@
     <fileset dir="lib"/>
     <pathelement location="${solr-path}/build/solr"/>
     <pathelement location="${solr-path}/build/solrj"/>
-    <path refid="lucene.classpath"/>
+    <!--path refid="lucene.classpath"/-->
     <fileset dir="${solr-path}/lib" includes="*.jar"/>
     <fileset dir="/usr/share/java" includes="jzlib-1.0.7.jar" />
   </path>
