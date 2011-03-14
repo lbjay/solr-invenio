@@ -33,6 +33,8 @@ public class BitSetFieldCollector extends FieldCollectorBase {
     private InvenioBitSet bitset;
     private int[] valueMap;
 
+    public BitSetFieldCollector() {}
+
     public BitSetFieldCollector(String fieldName) {
         this.fieldName = fieldName;
         this.bitset = new InvenioBitSet();
